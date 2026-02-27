@@ -1,0 +1,122 @@
+{
+  "lastUpdated": "2026-02-26",
+  "dataSource": "NCUA Call Reports (public data)",
+  "target": {
+    "cuNumber": 176,
+    "name": "Educational Federal Credit Union",
+    "tradeName": "EdFed",
+    "city": "Miami",
+    "state": "FL",
+    "zip": "33183",
+    "address": "7800 SW 117th Ave",
+    "yearOpened": 1935,
+    "charterType": "Federal",
+    "peerGroup": 6,
+    "routingNumber": "267077821",
+    "ceo": "Michael DiBenedetto"
+  },
+  "historical": [
+    {
+      "period": "2022-Q4",
+      "totalAssets": 1601790098,
+      "totalDeposits": 1387131908,
+      "totalLoans": 766935070,
+      "members": 90696,
+      "netWorth": 246631690
+    },
+    {
+      "period": "2023-Q4",
+      "totalAssets": 1607112126,
+      "totalDeposits": 1368475133,
+      "totalLoans": 834442162,
+      "members": 99280,
+      "netWorth": 255768986
+    },
+    {
+      "period": "2024-Q4",
+      "totalAssets": 1675471068,
+      "totalDeposits": 1421590488,
+      "totalLoans": 946516908,
+      "members": 107813,
+      "netWorth": 264187380
+    },
+    {
+      "period": "2025-Q3",
+      "totalAssets": 1728331833,
+      "totalDeposits": 1452726456,
+      "totalLoans": 1034189513,
+      "members": 116191,
+      "netWorth": 273123079,
+      "numLoans": 55188,
+      "loansGrantedYTD": 12629,
+      "loansGrantedAmountYTD": 268234083,
+      "landAndBuilding": 23040708
+    }
+  ],
+  "peers": [
+    {
+      "cuNumber": 24508,
+      "name": "Dade County Federal Credit Union",
+      "city": "Sweetwater",
+      "totalAssets": 1473910016,
+      "totalDeposits": 1136080563,
+      "totalLoans": 1043386486,
+      "members": 109384
+    },
+    {
+      "cuNumber": 24718,
+      "name": "Jetstream Federal Credit Union",
+      "city": "Miami Lakes",
+      "totalAssets": 269717811,
+      "totalDeposits": 233300279,
+      "totalLoans": 226649776,
+      "members": 14181
+    },
+    {
+      "cuNumber": 67348,
+      "name": "University Credit Union",
+      "city": "Miami",
+      "totalAssets": 234893420,
+      "totalDeposits": 206912426,
+      "totalLoans": 95348705,
+      "members": 15903
+    },
+    {
+      "cuNumber": 67330,
+      "name": "Miami Postal Service Credit Union",
+      "city": "Miami",
+      "totalAssets": 191305076,
+      "totalDeposits": 171567621,
+      "totalLoans": 116576173,
+      "members": 13063
+    },
+    {
+      "cuNumber": 872,
+      "name": "Miami Firefighters Federal Credit Union",
+      "city": "Miami",
+      "totalAssets": 184094851,
+      "totalDeposits": 159943726,
+      "totalLoans": 131318641,
+      "members": 6102
+    },
+    {
+      "cuNumber": 14391,
+      "name": "Baptist Health South Florida Federal Credit Union",
+      "city": "Miami",
+      "totalAssets": 127017074,
+      "totalDeposits": 111243161,
+      "totalLoans": 94496899,
+      "members": 13795
+    }
+  ],
+  "stateLeaders": [
+    { "name": "Suncoast Credit Union", "totalAssets": 19059134709 },
+    { "name": "VyStar Credit Union", "totalAssets": 13900840817 },
+    { "name": "Space Coast Credit Union", "totalAssets": 8908419963 },
+    { "name": "MidFlorida Credit Union", "totalAssets": 8767241458 },
+    { "name": "Fairwinds Credit Union", "totalAssets": 5099497498 },
+    { "name": "Grow Financial FCU", "totalAssets": 3770681343 },
+    { "name": "Campus USA CU", "totalAssets": 3720920157 },
+    { "name": "EdFed (Educational FCU)", "totalAssets": 1728331833 }
+  ]
+}
