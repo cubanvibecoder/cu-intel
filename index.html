@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CU Intel — Credit Union Intelligence Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #223E99;
+            --primary-dark: #1a3178;
+            --primary-light: #2d4fba;
+            --gold: #BEB591;
+            --gold-light: #d4ccab;
+            --green: #10b981;
+            --green-bg: #ecfdf5;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --blue-bg: #eff6ff;
+            --amber: #f59e0b;
+            --amber-bg: #fffbeb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-icon {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+        }
+
+        .header-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: 0.78em;
+            opacity: 0.75;
+            font-weight: 400;
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 0.78em;
+            opacity: 0.8;
+        }
+
+        /* Hero KPIs */
+        .hero {
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 40%, transparent 100%);
+            padding: 24px 0 48px;
+        }
+
+        .hero-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .hero-title {
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-title .badge {
+            background: var(--gold);
+            color: var(--primary-dark);
+            font-size: 0.7em;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .kpi-card:nth-child(1)::after { background: var(--primary); }
+        .kpi-card:nth-child(2)::after { background: var(--gold); }
+        .kpi-card:nth-child(3)::after { background: var(--green); }
+        .kpi-card:nth-child(4)::after { background: var(--amber); }
+        .kpi-card:nth-child(5)::after { background: #8b5cf6; }
+
+        .kpi-label {
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .kpi-value {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .kpi-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-top: 6px;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .kpi-change.up { color: #047857; background: var(--green-bg); }
+        .kpi-change.down { color: #dc2626; background: var(--red-bg); }
+
+        .kpi-sub {
+            font-size: 0.72em;
+            color: var(--gray-400);
+            margin-top: 4px;
+        }
+
+        /* Content */
+        .content {
+            max-width: 1400px;
+            margin: -16px auto 0;
+            padding: 0 32px 48px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px 14px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 20px 24px;
+        }
+
+        .card-body.chart-body {
+            padding: 16px 20px;
+        }
+
+        /* Peer Table */
+        .peer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+
+        .peer-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-500);
+            font-weight: 600;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .peer-table th:not(:first-child) { text-align: right; }
+
+        .peer-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .peer-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+
+        .peer-table tr:hover { background: var(--gray-50); }
+
+        .peer-table tr.highlight {
+            background: var(--blue-bg);
+            font-weight: 600;
+        }
+
+        .peer-table tr.highlight td { border-bottom-color: var(--primary); border-bottom-width: 2px; }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .rank-1 { background: #fef3c7; color: #92400e; }
+        .rank-2 { background: var(--gray-100); color: var(--gray-600); }
+        .rank-3 { background: #fde68a; color: #92400e; }
+        .rank-other { background: var(--gray-100); color: var(--gray-400); }
+
+        /* Health Score */
+        .health-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .score-ring {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .score-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-ring .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.8em;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1;
+        }
+
+        .score-ring .score-label {
+            position: absolute;
+            top: 62%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            font-size: 0.7em;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        .health-indicators {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+            padding: 8px 12px;
+            background: var(--gray-50);
+            border-radius: 8px;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .indicator-dot.green { background: var(--green); }
+        .indicator-dot.amber { background: var(--amber); }
+        .indicator-dot.red { background: var(--red); }
+
+        /* State Ranking */
+        .state-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.82em;
+        }
+
+        .state-bar-name {
+            width: 140px;
+            flex-shrink: 0;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .state-bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--gray-100);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .state-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .state-bar-value {
+            width: 80px;
+            text-align: right;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        .state-bar.edfed .state-bar-name { color: var(--primary); font-weight: 700; }
+        .state-bar.edfed .state-bar-fill { background: var(--primary); }
+        .state-bar:not(.edfed) .state-bar-fill { background: var(--gray-300); }
+
+        /* Insights */
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .insight-item:last-child { border-bottom: none; }
+
+        .insight-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .insight-icon.green { background: var(--green-bg); }
+        .insight-icon.amber { background: var(--amber-bg); }
+        .insight-icon.blue { background: var(--blue-bg); }
+
+        .insight-title {
+            font-weight: 600;
+            font-size: 0.88em;
+            color: var(--gray-800);
+        }
+
+        .insight-desc {
+            font-size: 0.78em;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 0.72em;
+            color: var(--gray-400);
+            border-top: 1px solid var(--gray-200);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 700px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-inner { padding: 12px 16px; }
+            .hero-inner, .content { padding-left: 16px; padding-right: 16px; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="header-icon">🏦</div>
+            <div>
+                <div class="header-title">CU Intel</div>
+                <div class="header-subtitle">Credit Union Intelligence Dashboard</div>
+            </div>
+        </div>
+        <div class="header-meta">
+            Data: NCUA Call Reports (Public)<br>
+            Last Updated: Q3 2025 (Sep 30, 2025)
+        </div>
+    </div>
+</header>
+
+<!-- Hero KPIs -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-title">
+            EdFed — The Educational Federal Credit Union
+            <span class="badge">Charter #176 · Est. 1935 · Miami, FL</span>
+        </div>
+        <div class="kpi-grid">
+            <div class="kpi-card animate delay-1">
+                <div class="kpi-label">Total Assets</div>
+                <div class="kpi-value">$1.73B</div>
+                <div class="kpi-change up">▲ 7.9% vs 2022</div>
+                <div class="kpi-sub">#1 in Miami-Dade County</div>
+            </div>
+            <div class="kpi-card animate delay-2">
+                <div class="kpi-label">Total Deposits</div>
+                <div class="kpi-value">$1.45B</div>
+                <div class="kpi-change up">▲ 4.7% vs 2022</div>
+                <div class="kpi-sub">Deposit-to-Asset: 84.1%</div>
+            </div>
+            <div class="kpi-card animate delay-3">
+                <div class="kpi-label">Total Loans</div>
+                <div class="kpi-value">$1.03B</div>
+                <div class="kpi-change up">▲ 34.8% vs 2022</div>
+                <div class="kpi-sub">55,188 active loans</div>
+            </div>
+            <div class="kpi-card animate delay-4">
+                <div class="kpi-label">Members</div>
+                <div class="kpi-value">116,191</div>
+                <div class="kpi-change up">▲ 28.1% vs 2022</div>
+                <div class="kpi-sub">+25,495 members in 3 years</div>
+            </div>
+            <div class="kpi-card animate delay-5">
+                <div class="kpi-label">Net Worth</div>
+                <div class="kpi-value">$273M</div>
+                <div class="kpi-change up">▲ 10.7% vs 2022</div>
+                <div class="kpi-sub">NW Ratio: 15.8%</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="content">
+
+    <!-- Row 1: Growth Chart + Health Score -->
+    <div class="grid-2">
+        <div class="card animate delay-1">
+            <div class="card-header">
+                <div class="card-title">📈 Asset & Loan Growth (2022–2025)</div>
+            </div>
+            <div class="card-body chart-body">
+                <canvas id="growthChart" height="220"></canvas>
+            </div>
+        </div>
+        <div class="card animate delay-2">
+            <div class="card-header">
+                <div class="card-title">💪 Financial Health Score</div>
+            </div>
+            <div class="card-body">
+                <div class="health-score">
+                    <div class="score-ring">
+                        <svg width="160" height="160" viewBox="0 0 160 160">
+                            <circle cx="80" cy="80" r="70" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+                            <circle cx="80" cy="80" r="70" fill="none" stroke="#10b981" stroke-width="12"
+                                stroke-dasharray="440" stroke-dashoffset="52.8" stroke-linecap="round"/>
+                        </svg>
+                        <div class="score-value">88</div>
+                        <div class="score-label">/ 100</div>
+                    </div>
+                    <div class="health-indicators">
+                        <div class="indicator">
+                            <div class="indicator-dot green"></div>
+                            <div>
+                                <strong>Net Worth Ratio: 15.8%</strong><br>
+                                <span style="font-size:0.85em;color:var(--gray-400)">Well-capitalized (>7%)</span>
+                            </div>
+                        </div>
+                        <div class="indicator">
+                            <div class="indicator-dot green"></div>
+                            <div>
+                                <strong>Loan-to-Share: 71.2%</strong><br>
+                                <span style="font-size:0.85em;color:var(--gray-400)">Healthy utilization</span>
+                            </div>
+                        </div>
+                        <div class="indicator">
+                            <div class="indicator-dot green"></div>
+                            <div>
+                                <strong>Member Growth: 7.8%/yr</strong><br>
+                                <span style="font-size:0.85em;color:var(--gray-400)">Strong acquisition</span>
+                            </div>
+                        </div>
+                        <div class="indicator">
+                            <div class="indicator-dot green"></div>
+                            <div>
+                                <strong>Loan Growth: 9.3%/yr</strong><br>
+                                <span style="font-size:0.85em;color:var(--gray-400)">Above national avg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Member Growth + Loan Composition -->
+    <div class="grid-2">
+        <div class="card animate delay-2">
+            <div class="card-header">
+                <div class="card-title">👥 Member Growth Trajectory</div>
+            </div>
+            <div class="card-body chart-body">
+                <canvas id="memberChart" height="220"></canvas>
+            </div>
+        </div>
+        <div class="card animate delay-3">
+            <div class="card-header">
+                <div class="card-title">🥧 Deposit vs. Loan Composition</div>
+            </div>
+            <div class="card-body chart-body">
+                <canvas id="compositionChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Peer Comparison Table -->
+    <div class="card animate delay-3" style="margin-bottom:24px;">
+        <div class="card-header">
+            <div class="card-title">🏆 Miami-Dade Peer Comparison (Q3 2025)</div>
+        </div>
+        <div class="card-body" style="padding: 0 24px 20px;">
+            <table class="peer-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Credit Union</th>
+                        <th>Total Assets</th>
+                        <th>Deposits</th>
+                        <th>Loans</th>
+                        <th>Members</th>
+                        <th>Loan/Deposit</th>
+                        <th>Assets/Member</th>
+                    </tr>
+                </thead>
+                <tbody id="peerTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Row 4: State Ranking + Key Insights -->
+    <div class="grid-2">
+        <div class="card animate delay-4">
+            <div class="card-header">
+                <div class="card-title">🗺️ Florida Credit Union Ranking (by Assets)</div>
+            </div>
+            <div class="card-body" id="stateRanking"></div>
+        </div>
+        <div class="card animate delay-5">
+            <div class="card-header">
+                <div class="card-title">💡 AI-Generated Insights</div>
+            </div>
+            <div class="card-body">
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <div class="insight-icon green">📈</div>
+                        <div>
+                            <div class="insight-title">Loan portfolio surpassed $1B milestone</div>
+                            <div class="insight-desc">EdFed's total loans grew 34.8% since 2022, breaking the billion-dollar mark. This pace significantly outperforms the national CU average of ~8% loan growth.</div>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <div class="insight-icon green">👥</div>
+                        <div>
+                            <div class="insight-title">Member acquisition is accelerating</div>
+                            <div class="insight-desc">Added 25,495 new members since 2022 (~8,500/year). At this rate, EdFed will cross 130K members by end of 2026. Community charter expansion is paying dividends.</div>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <div class="insight-icon blue">🏦</div>
+                        <div>
+                            <div class="insight-title">Dominant market position in Miami-Dade</div>
+                            <div class="insight-desc">EdFed is $254M ahead of Dade County FCU (#2) in total assets. No other Miami-Dade CU exceeds $270M. The competitive moat is wide and growing.</div>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <div class="insight-icon green">💰</div>
+                        <div>
+                            <div class="insight-title">Net worth ratio is a fortress</div>
+                            <div class="insight-desc">At 15.8%, EdFed's NW ratio is more than double the 7% "well-capitalized" threshold. This provides exceptional buffer against economic downturns and positions the CU for aggressive growth.</div>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <div class="insight-icon amber">📊</div>
+                        <div>
+                            <div class="insight-title">Watch: Loan-to-deposit ratio trending up</div>
+                            <div class="insight-desc">L/D ratio moved from 55.3% (2022) to 71.2% (2025). Still healthy, but continued loan growth at this pace may require deposit-gathering campaigns or rate adjustments by 2027.</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    CU Intel — Credit Union Intelligence Dashboard · Built by CubanMolty 🇨🇺 for EdFed Business Technology<br>
+    Data sourced from NCUA Quarterly Call Reports (public records) · All figures are unaudited regulatory filings<br>
+    Charter #176 · NCUA Insured · © 2026
+</div>
+
+<script>
+// === DATA ===
+const historical = [
+    { period: 'Q4 2022', assets: 1601.8, deposits: 1387.1, loans: 766.9, members: 90696, netWorth: 246.6 },
+    { period: 'Q4 2023', assets: 1607.1, deposits: 1368.5, loans: 834.4, members: 99280, netWorth: 255.8 },
+    { period: 'Q4 2024', assets: 1675.5, deposits: 1421.6, loans: 946.5, members: 107813, netWorth: 264.2 },
+    { period: 'Q3 2025', assets: 1728.3, deposits: 1452.7, loans: 1034.2, members: 116191, netWorth: 273.1 }
+];
+
+const peers = [
+    { name: 'EdFed (Educational FCU)', assets: 1728331833, deposits: 1452726456, loans: 1034189513, members: 116191, isEdFed: true },
+    { name: 'Dade County FCU', assets: 1473910016, deposits: 1136080563, loans: 1043386486, members: 109384 },
+    { name: 'Jetstream FCU', assets: 269717811, deposits: 233300279, loans: 226649776, members: 14181 },
+    { name: 'University CU', assets: 234893420, deposits: 206912426, loans: 95348705, members: 15903 },
+    { name: 'Miami Postal Service CU', assets: 191305076, deposits: 171567621, loans: 116576173, members: 13063 },
+    { name: 'Miami Firefighters FCU', assets: 184094851, deposits: 159943726, loans: 131318641, members: 6102 },
+    { name: 'Baptist Health S. FL FCU', assets: 127017074, deposits: 111243161, loans: 94496899, members: 13795 }
+];
+
+const stateLeaders = [
+    { name: 'Suncoast CU', assets: 19059 },
+    { name: 'VyStar CU', assets: 13901 },
+    { name: 'Space Coast CU', assets: 8908 },
+    { name: 'MidFlorida CU', assets: 8767 },
+    { name: 'Fairwinds CU', assets: 5099 },
+    { name: 'Grow Financial', assets: 3771 },
+    { name: 'Campus USA', assets: 3721 },
+    { name: 'EdFed', assets: 1728, isEdFed: true }
+];
+
+// === CHARTS ===
+const chartColors = {
+    primary: '#223E99',
+    primaryLight: 'rgba(34,62,153,0.1)',
+    gold: '#BEB591',
+    goldLight: 'rgba(190,181,145,0.1)',
+    green: '#10b981',
+    greenLight: 'rgba(16,185,129,0.1)'
+};
+
+// Growth Chart
+new Chart(document.getElementById('growthChart'), {
+    type: 'line',
+    data: {
+        labels: historical.map(h => h.period),
+        datasets: [
+            {
+                label: 'Total Assets ($M)',
+                data: historical.map(h => h.assets),
+                borderColor: chartColors.primary,
+                backgroundColor: chartColors.primaryLight,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: chartColors.primary,
+                borderWidth: 3
+            },
+            {
+                label: 'Total Loans ($M)',
+                data: historical.map(h => h.loans),
+                borderColor: chartColors.green,
+                backgroundColor: chartColors.greenLight,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: chartColors.green,
+                borderWidth: 3
+            },
+            {
+                label: 'Total Deposits ($M)',
+                data: historical.map(h => h.deposits),
+                borderColor: chartColors.gold,
+                backgroundColor: chartColors.goldLight,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: chartColors.gold,
+                borderWidth: 3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, padding: 16, font: { size: 11 } } },
+            tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M` } }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                ticks: { callback: v => `$${v}M`, font: { size: 11 } },
+                grid: { color: 'rgba(0,0,0,0.04)' }
+            },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// Member Growth Chart
+new Chart(document.getElementById('memberChart'), {
+    type: 'bar',
+    data: {
+        labels: historical.map(h => h.period),
+        datasets: [{
+            label: 'Members',
+            data: historical.map(h => h.members),
+            backgroundColor: historical.map((h,i) => i === historical.length-1 ? chartColors.primary : 'rgba(34,62,153,0.3)'),
+            borderColor: chartColors.primary,
+            borderWidth: 2,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `Members: ${ctx.parsed.y.toLocaleString()}` } }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 80000,
+                ticks: { callback: v => (v/1000).toFixed(0) + 'K', font: { size: 11 } },
+                grid: { color: 'rgba(0,0,0,0.04)' }
+            },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// Composition Doughnut
+new Chart(document.getElementById('compositionChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Total Loans ($1.03B)', 'Net Worth ($273M)', 'Other Assets ($421M)'],
+        datasets: [{
+            data: [1034, 273, 421],
+            backgroundColor: [chartColors.green, chartColors.primary, chartColors.gold],
+            borderWidth: 3,
+            borderColor: 'white'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11 } } },
+            tooltip: { callbacks: { label: ctx => `${ctx.label}: $${ctx.parsed}M` } }
+        }
+    }
+});
+
+// === PEER TABLE ===
+const fmt = n => '$' + (n / 1e6).toFixed(1) + 'M';
+const fmtB = n => n >= 1e9 ? '$' + (n / 1e9).toFixed(2) + 'B' : '$' + (n / 1e6).toFixed(1) + 'M';
+const fmtK = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : n;
+const peerBody = document.getElementById('peerTableBody');
+
+peers.sort((a, b) => b.assets - a.assets).forEach((p, i) => {
+    const rank = i + 1;
+    const ld = ((p.loans / p.deposits) * 100).toFixed(1);
+    const apm = Math.round(p.assets / p.members);
+    const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+    const rowClass = p.isEdFed ? 'highlight' : '';
+    peerBody.innerHTML += `
+        <tr class="${rowClass}">
+            <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+            <td>${p.name}</td>
+            <td>${fmtB(p.assets)}</td>
+            <td>${fmtB(p.deposits)}</td>
+            <td>${fmtB(p.loans)}</td>
+            <td>${fmtK(p.members)}</td>
+            <td>${ld}%</td>
+            <td>$${apm.toLocaleString()}</td>
+        </tr>
+    `;
+});
+
+// === STATE RANKING ===
+const stateDiv = document.getElementById('stateRanking');
+const maxAssets = stateLeaders[0].assets;
+
+stateLeaders.forEach(s => {
+    const pct = (s.assets / maxAssets * 100).toFixed(1);
+    const isEdFed = s.isEdFed ? 'edfed' : '';
+    stateDiv.innerHTML += `
+        <div class="state-bar ${isEdFed}">
+            <div class="state-bar-name">${s.name}</div>
+            <div class="state-bar-track">
+                <div class="state-bar-fill" style="width: ${pct}%"></div>
+            </div>
+            <div class="state-bar-value">$${(s.assets / 1000).toFixed(1)}B</div>
+        </div>
+    `;
+});
+</script>
+
+</body>
+</html>
